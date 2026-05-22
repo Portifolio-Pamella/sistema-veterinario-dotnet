@@ -1,15 +1,13 @@
+using SistemaVeterinario.API.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using SistemaVeterinario.API.Models;
 
-namespace SistemaVeterinario.API.Repositories
+namespace SistemaVeterinario.API.Repositories.Interfaces
 {
     public interface IPetRepository
     {
         Task<IEnumerable<Pet>> GetAllAsync();
-        Task<Pet> GetByIdAsync(decimal id);
-        Task<IEnumerable<Pet>> GetByEspecieAsync(string especie);
-        Task<IEnumerable<Pet>> GetByTutorAsync(decimal idTutor);
+        Task<Pet?> GetByIdAsync(decimal id);
         Task AddAsync(Pet pet);
         Task UpdateAsync(Pet pet);
         Task DeleteAsync(decimal id);

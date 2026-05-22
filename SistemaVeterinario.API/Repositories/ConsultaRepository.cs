@@ -1,9 +1,9 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SistemaVeterinario.API.Data;
 using SistemaVeterinario.API.Models;
-using SistemaVeterinario.API.Repositories.interfaces;
+using SistemaVeterinario.API.Repositories.Interfaces;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SistemaVeterinario.API.Repositories
 {
@@ -16,11 +16,24 @@ namespace SistemaVeterinario.API.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Consulta>> GetAllAsync() =>
-            await _context.Consultas.Include(c => c.Pet).Include(c => c.Veterinario).Include(c => c.Clinica).ToListAsync();
+        public async Task<IEnumerable<Consulta>> GetAllAsync()
+        {
+            // Usamos Include para carregar os objetos relacionados (Pet, Clínica, Veterinário)
+            return await _context.Consultas
+                .Include(c => c.Pet)
+                .Include(c => c.Clinica)
+                .Include(c => c.Veterinario)
+                .ToListAsync();
+        }
 
-        public async Task<Consulta> GetByIdAsync(decimal id) =>
-            await _context.Consultas.Include(c => c.Pet).Include(c => c.Veterinario).Include(c => c.Clinica).FirstOrDefaultAsync(c => c.IdConsulta == id);
+        public async Task<Consulta?> GetByIdAsync(decimal id)
+        {
+            return await _context.Consultas
+                .Include(c => c.Pet)
+                .Include(c => c.Clinica)
+                .Include(c => c.Veterinario)
+                .FirstOrDefaultAsync(c => c.IdConsulta == id);
+        }
 
         public async Task AddAsync(Consulta consulta)
         {
@@ -36,7 +49,7 @@ namespace SistemaVeterinario.API.Repositories
 
         public async Task DeleteAsync(decimal id)
         {
-            var consulta = await GetByIdAsync(id);
+            var consulta = await _context.Consultas.FindAsync(id);
             if (consulta != null)
             {
                 _context.Consultas.Remove(consulta);

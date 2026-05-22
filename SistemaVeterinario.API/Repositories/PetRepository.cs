@@ -1,9 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SistemaVeterinario.API.Data;
 using SistemaVeterinario.API.Models;
+using SistemaVeterinario.API.Repositories.Interfaces;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SistemaVeterinario.API.Repositories
 {
@@ -11,22 +11,21 @@ namespace SistemaVeterinario.API.Repositories
     {
         private readonly AppDbContext _context;
 
-        public PetRepository(AppDbContext context)
+        public PetRepository(AppDbContext context) => _context = context;
+
+        public async Task<IEnumerable<Pet>> GetAllAsync()
         {
-            _context = context;
+            return await _context.Pets
+                .Include(p => p.Tutor)
+                .ToListAsync();
         }
 
-        public async Task<IEnumerable<Pet>> GetAllAsync() =>
-            await _context.Pets.Include(p => p.Tutor).ToListAsync();
-
-        public async Task<Pet> GetByIdAsync(decimal id) =>
-            await _context.Pets.Include(p => p.Tutor).FirstOrDefaultAsync(p => p.IdPet == id);
-
-        public async Task<IEnumerable<Pet>> GetByEspecieAsync(string especie) =>
-            await _context.Pets.Where(p => p.EspeciePet.ToLower() == especie.ToLower()).ToListAsync();
-
-        public async Task<IEnumerable<Pet>> GetByTutorAsync(decimal idTutor) =>
-            await _context.Pets.Where(p => p.IdTutor == idTutor).ToListAsync();
+        public async Task<Pet?> GetByIdAsync(decimal id)
+        {
+            return await _context.Pets
+                .Include(p => p.Tutor)
+                .FirstOrDefaultAsync(p => p.IdPet == id);
+        }
 
         public async Task AddAsync(Pet pet)
         {
@@ -42,7 +41,7 @@ namespace SistemaVeterinario.API.Repositories
 
         public async Task DeleteAsync(decimal id)
         {
-            var pet = await GetByIdAsync(id);
+            var pet = await _context.Pets.FindAsync(id);
             if (pet != null)
             {
                 _context.Pets.Remove(pet);

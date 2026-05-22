@@ -9,6 +9,7 @@ namespace SistemaVeterinario.API.Data
         {
         }
 
+        // DbSets (Representam as tabelas no seu banco)
         public DbSet<Tutor> Tutores { get; set; }
         public DbSet<Pet> Pets { get; set; }
         public DbSet<Clinica> Clinicas { get; set; }
@@ -23,29 +24,23 @@ namespace SistemaVeterinario.API.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Aplica as configurações do EF Core herdadas de IEntityTypeConfiguration
             base.OnModelCreating(modelBuilder);
 
-            // Garante as regras de unicidade mapeadas na DDL (Unique Constraints)
-            modelBuilder.Entity<Clinica>()
-                .HasIndex(c => c.CnpjClinica).IsUnique();
+            // Carrega todos os mappings (ex: ClinicaMapping, TutorMapping, etc) automaticamente
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
-            modelBuilder.Entity<Clinica>()
-                .HasIndex(c => c.EmailClinica).IsUnique();
+            // Regras de Unicidade (Constraints de Negócio)
+            modelBuilder.Entity<Clinica>().HasIndex(c => c.CnpjClinica).IsUnique();
+            modelBuilder.Entity<Clinica>().HasIndex(c => c.EmailClinica).IsUnique();
 
-            modelBuilder.Entity<Tutor>()
-                .HasIndex(t => t.CpfTutor).IsUnique();
+            modelBuilder.Entity<Tutor>().HasIndex(t => t.CpfTutor).IsUnique();
+            modelBuilder.Entity<Tutor>().HasIndex(t => t.EmailTutor).IsUnique();
 
-            modelBuilder.Entity<Tutor>()
-                .HasIndex(t => t.EmailTutor).IsUnique();
+            modelBuilder.Entity<Veterinario>().HasIndex(v => v.CrmVeterinario).IsUnique();
+            modelBuilder.Entity<Veterinario>().HasIndex(v => v.EmailVeterinario).IsUnique();
 
-            modelBuilder.Entity<Veterinario>()
-                .HasIndex(v => v.CrmVeterinario).IsUnique();
-
-            modelBuilder.Entity<Veterinario>()
-                .HasIndex(v => v.EmailVeterinario).IsUnique();
-
-            modelBuilder.Entity<FichaClinica>()
-                .HasIndex(f => f.IdPet).IsUnique();
+            modelBuilder.Entity<FichaClinica>().HasIndex(f => f.IdPet).IsUnique();
         }
     }
 }

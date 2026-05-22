@@ -1,10 +1,9 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using SistemaVeterinario.API.Models; // ADICIONE ESTA LINHA
 
 namespace SistemaVeterinario.API.Models
 {
-    [Table("TB_PET_CLINICA")]
     public class PetClinica
     {
         [Key]
@@ -16,14 +15,14 @@ namespace SistemaVeterinario.API.Models
         public decimal IdClinica { get; set; }
 
         [ForeignKey("IdClinica")]
-        public Clinica Clinica { get; set; }
+        public Clinica Clinica { get; set; } = null!; // Agora o compilador reconhece 'Clinica'
 
         [Required]
         [Column("ID_PET")]
         public decimal IdPet { get; set; }
 
         [ForeignKey("IdPet")]
-        public Pet Pet { get; set; }
+        public Pet Pet { get; set; } = null!;
 
         [Required]
         [Column("DATA_VINCULO_PET_CLINICA")]

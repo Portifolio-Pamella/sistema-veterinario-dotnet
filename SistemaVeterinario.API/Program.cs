@@ -1,19 +1,40 @@
-using SistemaVeterinario.API.Data;
-using SistemaVeterinario.API.Repositories;
-using SistemaVeterinario.API.Repositories.interfaces;
 using Microsoft.EntityFrameworkCore;
+using SistemaVeterinario.API.Data;
+using SistemaVeterinario.API.Repositories; // Namespace onde reside PetClinicaRepository
+using SistemaVeterinario.API.Repositories.Interfaces;
+using SistemaVeterinario.API.Services;     // Namespace onde residem os Services
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração do Banco de Dados
+// 1. Configuração do Banco de Dados
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("OracleConnection")));
-// Injeção de Dependência
-builder.Services.AddScoped<IPetRepository, PetRepository>();
-builder.Services.AddScoped<ITutorRepository, TutorRepository>();
+
+// 2. Injeção de Dependência dos Repositories
+builder.Services.AddScoped<IAcompanhamentoRepository, AcompanhamentoRepository>();
 builder.Services.AddScoped<IClinicaRepository, ClinicaRepository>();
-builder.Services.AddScoped<IVeterinarioRepository, VeterinarioRepository>();
 builder.Services.AddScoped<IConsultaRepository, ConsultaRepository>();
+builder.Services.AddScoped<IFichaClinicaRepository, FichaClinicaRepository>();
+builder.Services.AddScoped<IHistoricoRepository, HistoricoRepository>();
+builder.Services.AddScoped<IMedicamentoRepository, MedicamentoRepository>();
+builder.Services.AddScoped<INotificacaoRepository, NotificacaoRepository>();
+builder.Services.AddScoped<IPetRepository, PetRepository>();
+builder.Services.AddScoped<IPetClinicaRepository, PetClinicaRepository>(); // Agora ele encontra!
+builder.Services.AddScoped<ITutorRepository, TutorRepository>();
+builder.Services.AddScoped<IVeterinarioRepository, VeterinarioRepository>();
+
+// 3. Injeção de Dependência dos Services
+builder.Services.AddScoped<IAcompanhamentoService, AcompanhamentoService>();
+builder.Services.AddScoped<IClinicaService, ClinicaService>();
+builder.Services.AddScoped<IConsultaService, ConsultaService>();
+builder.Services.AddScoped<IFichaClinicaService, FichaClinicaService>();
+builder.Services.AddScoped<IHistoricoService, HistoricoService>();
+builder.Services.AddScoped<IMedicamentoService, MedicamentoService>();
+builder.Services.AddScoped<INotificacaoService, NotificacaoService>();
+builder.Services.AddScoped<IPetService, PetService>();
+builder.Services.AddScoped<IPetClinicaService, PetClinicaService>();
+builder.Services.AddScoped<ITutorService, TutorService>();
+builder.Services.AddScoped<IVeterinarioService, VeterinarioService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -21,20 +42,16 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Use isto para desabilitar o redirecionamento forçado para HTTPS durante o desenvolvimento, 
-// o que costuma causar problemas em ambiente local sem certificado:
-// app.UseHttpsRedirection(); 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sistema Veterinário API v1");
+        c.RoutePrefix = string.Empty;
+    });
+}
 
 app.UseAuthorization();
 app.MapControllers();
-
-// Swagger
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sistema Veterinario API v1");
-    // Se você quer que o Swagger abra na raiz (http://localhost:5262/), descomente a linha abaixo:
-    c.RoutePrefix = string.Empty;
-});
-
 app.Run();

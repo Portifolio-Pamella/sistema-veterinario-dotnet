@@ -1,9 +1,9 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SistemaVeterinario.API.Data;
 using SistemaVeterinario.API.Models;
-using SistemaVeterinario.API.Repositories.interfaces;
+using SistemaVeterinario.API.Repositories.Interfaces;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace SistemaVeterinario.API.Repositories
 {
@@ -11,14 +11,17 @@ namespace SistemaVeterinario.API.Repositories
     {
         private readonly AppDbContext _context;
 
-        public TutorRepository(AppDbContext context)
+        public TutorRepository(AppDbContext context) => _context = context;
+
+        public async Task<IEnumerable<Tutor>> GetAllAsync()
         {
-            _context = context;
+            return await _context.Tutores.ToListAsync();
         }
 
-        public async Task<IEnumerable<Tutor>> GetAllAsync() => await _context.Tutores.ToListAsync();
-
-        public async Task<Tutor> GetByIdAsync(decimal id) => await _context.Tutores.FindAsync(id);
+        public async Task<Tutor?> GetByIdAsync(decimal id)
+        {
+            return await _context.Tutores.FindAsync(id);
+        }
 
         public async Task AddAsync(Tutor tutor)
         {
@@ -34,7 +37,7 @@ namespace SistemaVeterinario.API.Repositories
 
         public async Task DeleteAsync(decimal id)
         {
-            var tutor = await GetByIdAsync(id);
+            var tutor = await _context.Tutores.FindAsync(id);
             if (tutor != null)
             {
                 _context.Tutores.Remove(tutor);

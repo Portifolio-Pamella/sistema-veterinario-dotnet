@@ -16,22 +16,22 @@ namespace SistemaVeterinario.API.Models
         public decimal IdPet { get; set; }
 
         [ForeignKey("IdPet")]
-        public Pet Pet { get; set; }
+        public Pet Pet { get; set; } = null!; // null! avisa ao EF que não será nulo
 
         [Required]
         [Column("ID_VETERINARIO")]
         public decimal IdVeterinario { get; set; }
 
         [ForeignKey("IdVeterinario")]
-        public Veterinario Veterinario { get; set; }
+        public Veterinario Veterinario { get; set; } = null!;
 
         [Column("NOME_ACOMPANHAMENTO")]
         [StringLength(150)]
-        public string NomeAcompanhamento { get; set; }
+        public string NomeAcompanhamento { get; set; } = string.Empty;
 
         [Column("DESCRICAO_ACOMPANHAMENTO")]
         [StringLength(500)]
-        public string DescricaoAcompanhamento { get; set; }
+        public string DescricaoAcompanhamento { get; set; } = string.Empty;
 
         [Required]
         [Column("DATA_INICIO_ACOMPANHAMENTO")]
@@ -43,6 +43,6 @@ namespace SistemaVeterinario.API.Models
         [Required]
         [Column("STATUS_ACOMPANHAMENTO")]
         [StringLength(20)]
-        public string StatusAcompanhamento { get; set; } // ATIVO / FINALIZADO
+        public string StatusAcompanhamento { get; set; } = "ATIVO"; // Valor padrão útil
     }
 }
