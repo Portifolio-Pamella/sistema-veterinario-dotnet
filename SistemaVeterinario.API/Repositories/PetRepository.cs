@@ -29,12 +29,24 @@ namespace SistemaVeterinario.API.Repositories
 
         public async Task AddAsync(Pet pet)
         {
+     
+            if (pet.Tutor != null)
+            {
+                _context.Entry(pet.Tutor).State = EntityState.Unchanged;
+            }
+
             await _context.Pets.AddAsync(pet);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Pet pet)
         {
+    
+            if (pet.Tutor != null)
+            {
+                _context.Entry(pet.Tutor).State = EntityState.Unchanged;
+            }
+
             _context.Pets.Update(pet);
             await _context.SaveChangesAsync();
         }

@@ -1,7 +1,6 @@
 ﻿using SistemaVeterinario.API.Models;
-using SistemaVeterinario.API.Repositories; // Corrigido: sem o ".Interfaces"
+using SistemaVeterinario.API.Repositories;
 using SistemaVeterinario.API.Repositories.Interfaces;
-using SistemaVeterinario.API.Services;     // Corrigido: plural "Services"
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,14 +15,29 @@ namespace SistemaVeterinario.API.Services
             _repository = repository;
         }
 
-        public async Task<IEnumerable<Tutor>> GetAllAsync() => await _repository.GetAllAsync();
+        public async Task<IEnumerable<Tutor>> GetAllAsync()
+        {
+            return await _repository.GetAllAsync();
+        }
 
-        public async Task<Tutor?> GetByIdAsync(decimal id) => await _repository.GetByIdAsync(id);
+        public async Task<Tutor?> GetByIdAsync(decimal id)
+        {
+            return await _repository.GetByIdAsync(id);
+        }
 
-        public async Task AddAsync(Tutor tutor) => await _repository.AddAsync(tutor);
+        public async Task AddAsync(Tutor tutor)
+        {
+            await _repository.AddAsync(tutor);
+        }
 
-        public async Task UpdateAsync(Tutor tutor) => await _repository.UpdateAsync(tutor);
+        public async Task UpdateAsync(Tutor tutor)
+        {
+            await _repository.UpdateAsync(tutor);
+        }
 
-        public async Task DeleteAsync(decimal id) => await _repository.DeleteAsync(id);
+        public async Task DeleteAsync(decimal id)
+        {
+            await _repository.DeleteAsync(id);
+        }
     }
 }

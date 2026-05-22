@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaVeterinario.API.Data;
-using SistemaVeterinario.API.Repositories; // Namespace onde reside PetClinicaRepository
+using SistemaVeterinario.API.Repositories;
 using SistemaVeterinario.API.Repositories.Interfaces;
-using SistemaVeterinario.API.Services;     // Namespace onde residem os Services
+using SistemaVeterinario.API.Services;     
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +19,7 @@ builder.Services.AddScoped<IHistoricoRepository, HistoricoRepository>();
 builder.Services.AddScoped<IMedicamentoRepository, MedicamentoRepository>();
 builder.Services.AddScoped<INotificacaoRepository, NotificacaoRepository>();
 builder.Services.AddScoped<IPetRepository, PetRepository>();
-builder.Services.AddScoped<IPetClinicaRepository, PetClinicaRepository>(); // Agora ele encontra!
+builder.Services.AddScoped<IPetClinicaRepository, PetClinicaRepository>();
 builder.Services.AddScoped<ITutorRepository, TutorRepository>();
 builder.Services.AddScoped<IVeterinarioRepository, VeterinarioRepository>();
 

@@ -1,7 +1,7 @@
 ﻿using SistemaVeterinario.API.Models;
-using SistemaVeterinario.API.Repositories; // Isso resolve o erro CS0246
+using SistemaVeterinario.API.Repositories; 
 using SistemaVeterinario.API.Repositories.Interfaces;
-using SistemaVeterinario.API.Services;     // Namespace da interface de serviço
+using SistemaVeterinario.API.Services;     
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

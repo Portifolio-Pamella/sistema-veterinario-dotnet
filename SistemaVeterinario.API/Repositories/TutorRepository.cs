@@ -25,6 +25,12 @@ namespace SistemaVeterinario.API.Repositories
 
         public async Task AddAsync(Tutor tutor)
         {
+            if (tutor.IdTutor == 0)
+            {
+                var maxId = await _context.Tutores.MaxAsync(t => (decimal?)t.IdTutor) ?? 0;
+                tutor.IdTutor = maxId + 1;
+            }
+
             await _context.Tutores.AddAsync(tutor);
             await _context.SaveChangesAsync();
         }
