@@ -15,40 +15,32 @@ namespace SistemaVeterinario.API.Repositories
 
         public async Task<IEnumerable<Pet>> GetAllAsync()
         {
-            return await _context.Pets
-                .Include(p => p.Tutor)
-                .ToListAsync();
+            return await _context.Pets.Include(p => p.Tutor).ToListAsync();
         }
 
         public async Task<Pet?> GetByIdAsync(decimal id)
         {
-            return await _context.Pets
-                .Include(p => p.Tutor)
-                .FirstOrDefaultAsync(p => p.IdPet == id);
+            return await _context.Pets.Include(p => p.Tutor).FirstOrDefaultAsync(p => p.IdPet == id);
         }
 
         public async Task AddAsync(Pet pet)
         {
-     
-            if (pet.Tutor != null)
-            {
-                _context.Entry(pet.Tutor).State = EntityState.Unchanged;
-            }
-
+            // Para evitar problemas de integridade, garantimos que o tutor não seja tratado como novo
+            pet.Tutor = null!;
             await _context.Pets.AddAsync(pet);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Pet pet)
         {
-    
-            if (pet.Tutor != null)
+            var existingPet = await _context.Pets.FindAsync(pet.IdPet);
+            if (existingPet != null)
             {
-                _context.Entry(pet.Tutor).State = EntityState.Unchanged;
+                _context.Entry(existingPet).CurrentValues.SetValues(pet);
+                existingPet.IdTutor = pet.IdTutor;
+                existingPet.Tutor = null!;
+                await _context.SaveChangesAsync();
             }
-
-            _context.Pets.Update(pet);
-            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(decimal id)

@@ -11,32 +11,38 @@ namespace SistemaVeterinario.API.Repositories
     {
         private readonly AppDbContext _context;
 
-        public VeterinarioRepository(AppDbContext context) => _context = context;
+        public VeterinarioRepository(AppDbContext context)
+        {
+            _context = context;
+        }
 
         public async Task<IEnumerable<Veterinario>> GetAllAsync()
         {
-            return await _context.Veterinarios
-                .Include(v => v.Clinica)
-                .ToListAsync();
+            return await _context.Veterinarios.ToListAsync();
         }
 
         public async Task<Veterinario?> GetByIdAsync(decimal id)
         {
-            return await _context.Veterinarios
-                .Include(v => v.Clinica)
-                .FirstOrDefaultAsync(v => v.IdVeterinario == id);
+            return await _context.Veterinarios.FirstOrDefaultAsync(v => v.IdVeterinario == id);
         }
 
         public async Task AddAsync(Veterinario veterinario)
         {
+            veterinario.IdVeterinario = 0;
+
             await _context.Veterinarios.AddAsync(veterinario);
             await _context.SaveChangesAsync();
         }
-
         public async Task UpdateAsync(Veterinario veterinario)
         {
-            _context.Veterinarios.Update(veterinario);
-            await _context.SaveChangesAsync();
+            var existing = await _context.Veterinarios.FindAsync(veterinario.IdVeterinario);
+
+            if (existing != null)
+            {
+                _context.Entry(existing).CurrentValues.SetValues(veterinario);
+
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task DeleteAsync(decimal id)

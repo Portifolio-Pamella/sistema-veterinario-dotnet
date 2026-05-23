@@ -8,15 +8,11 @@ namespace SistemaVeterinario.API.Data.Mappings
     {
         public void Configure(EntityTypeBuilder<Veterinario> builder)
         {
-            // Mapeamento da Tabela
             builder.ToTable("TB_VETERINARIO");
 
-            // Chave Primária
             builder.HasKey(v => v.IdVeterinario);
 
-            // Propriedades
             builder.Property(v => v.IdVeterinario).HasColumnName("ID_VETERINARIO");
-            builder.Property(v => v.IdClinica).HasColumnName("ID_CLINICA").IsRequired();
 
             builder.Property(v => v.NomeVeterinario)
                 .HasColumnName("NOME_VETERINARIO")
@@ -50,12 +46,6 @@ namespace SistemaVeterinario.API.Data.Mappings
             builder.Property(v => v.DataCadastroVeterinario)
                 .HasColumnName("DATA_CADASTRO_VETERINARIO")
                 .IsRequired();
-
-            // Relacionamento (Chave Estrangeira)
-            builder.HasOne(v => v.Clinica)
-                .WithMany()
-                .HasForeignKey(v => v.IdClinica)
-                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

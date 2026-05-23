@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SistemaVeterinario.API.Data;
 using SistemaVeterinario.API.Repositories;
 using SistemaVeterinario.API.Repositories.Interfaces;
-using SistemaVeterinario.API.Services;     
+using SistemaVeterinario.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,29 +10,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("OracleConnection")));
 
-// 2. Injeção de Dependência dos Repositories
-builder.Services.AddScoped<IAcompanhamentoRepository, AcompanhamentoRepository>();
-builder.Services.AddScoped<IClinicaRepository, ClinicaRepository>();
-builder.Services.AddScoped<IConsultaRepository, ConsultaRepository>();
-builder.Services.AddScoped<IFichaClinicaRepository, FichaClinicaRepository>();
-builder.Services.AddScoped<IHistoricoRepository, HistoricoRepository>();
-builder.Services.AddScoped<IMedicamentoRepository, MedicamentoRepository>();
-builder.Services.AddScoped<INotificacaoRepository, NotificacaoRepository>();
+// 2. Configuração de CORS (DEVE ser antes do builder.Build())
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+// 3. Injeção de Dependência (Repositories e Services)
 builder.Services.AddScoped<IPetRepository, PetRepository>();
-builder.Services.AddScoped<IPetClinicaRepository, PetClinicaRepository>();
 builder.Services.AddScoped<ITutorRepository, TutorRepository>();
 builder.Services.AddScoped<IVeterinarioRepository, VeterinarioRepository>();
 
-// 3. Injeção de Dependência dos Services
-builder.Services.AddScoped<IAcompanhamentoService, AcompanhamentoService>();
-builder.Services.AddScoped<IClinicaService, ClinicaService>();
-builder.Services.AddScoped<IConsultaService, ConsultaService>();
-builder.Services.AddScoped<IFichaClinicaService, FichaClinicaService>();
-builder.Services.AddScoped<IHistoricoService, HistoricoService>();
-builder.Services.AddScoped<IMedicamentoService, MedicamentoService>();
-builder.Services.AddScoped<INotificacaoService, NotificacaoService>();
 builder.Services.AddScoped<IPetService, PetService>();
-builder.Services.AddScoped<IPetClinicaService, PetClinicaService>();
 builder.Services.AddScoped<ITutorService, TutorService>();
 builder.Services.AddScoped<IVeterinarioService, VeterinarioService>();
 
@@ -40,8 +34,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// AQUI o build congela a coleção de serviços
 var app = builder.Build();
 
+// 4. Middlewares (Devem vir após o builder.Build())
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -52,6 +48,12 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseHttpsRedirection();
 app.UseAuthorization();
+
+// Ativa a política de CORS definida acima
+app.UseCors("AllowAll");
+
 app.MapControllers();
+
 app.Run();
