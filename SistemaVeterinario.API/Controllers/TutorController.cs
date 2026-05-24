@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SistemaVeterinario.API.Models;
 using SistemaVeterinario.API.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SistemaVeterinario.API.Controllers
 {
@@ -11,51 +9,59 @@ namespace SistemaVeterinario.API.Controllers
     public class TutorController : ControllerBase
     {
         private readonly ITutorService _service;
+        public TutorController(ITutorService service) => _service = service;
 
-        public TutorController(ITutorService service)
-        {
-            _service = service;
-        }
-
-        // GET: api/Tutor - Lista todos os tutores cadastrados
+        /// <summary>Lista todos os tutores.</summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tutor>>> GetAll()
         {
-            return Ok(await _service.GetAllAsync());
+            try { return Ok(await _service.GetAllAsync()); }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
-        // GET: api/Tutor/{id} - Busca um tutor específico por ID
+        /// <summary>Busca um tutor por ID.</summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<Tutor>> GetById(decimal id)
         {
-            var tutor = await _service.GetByIdAsync(id);
-            return tutor == null ? NotFound() : Ok(tutor);
+            try
+            {
+                var t = await _service.GetByIdAsync(id);
+                return t == null ? NotFound("Tutor não encontrado.") : Ok(t);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
-        // POST: api/Tutor - Cadastra um novo tutor
+        /// <summary>Cadastra um novo tutor.</summary>
         [HttpPost]
-        public async Task<ActionResult> Create(Tutor tutor)
+        public async Task<ActionResult> Create(Tutor t)
         {
-            await _service.AddAsync(tutor);
-            return CreatedAtAction(nameof(GetById), new { id = tutor.IdTutor }, tutor);
+            try
+            {
+                await _service.AddAsync(t);
+                return CreatedAtAction(nameof(GetById), new { id = t.IdTutor }, t);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
-        // PUT: api/Tutor/{id} - Atualiza dados de um tutor existente
+        /// <summary>Atualiza os dados de um tutor.</summary>
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(decimal id, Tutor tutor)
+        public async Task<ActionResult> Update(decimal id, Tutor t)
         {
-            if (id != tutor.IdTutor) return BadRequest("ID do tutor divergente.");
-
-            await _service.UpdateAsync(tutor);
-            return NoContent();
+            if (id != t.IdTutor) return BadRequest("IDs divergentes.");
+            try
+            {
+                await _service.UpdateAsync(t);
+                return NoContent();
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
-        // DELETE: api/Tutor/{id} - Remove um tutor do sistema
+        /// <summary>Remove um tutor pelo ID.</summary>
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(decimal id)
         {
-            await _service.DeleteAsync(id);
-            return NoContent();
+            try { await _service.DeleteAsync(id); return NoContent(); }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SistemaVeterinario.API.Models;
 using SistemaVeterinario.API.Services;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SistemaVeterinario.API.Controllers
 {
@@ -11,51 +9,59 @@ namespace SistemaVeterinario.API.Controllers
     public class VeterinarioController : ControllerBase
     {
         private readonly IVeterinarioService _service;
+        public VeterinarioController(IVeterinarioService service) => _service = service;
 
-        public VeterinarioController(IVeterinarioService service)
-        {
-            _service = service;
-        }
-
-        // GET: api/Veterinario - Lista todos os veterinários registrados
+        /// <summary>Lista todos os veterinários cadastrados.</summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Veterinario>>> GetAll()
         {
-            return Ok(await _service.GetAllAsync());
+            try { return Ok(await _service.GetAllAsync()); }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
-        // GET: api/Veterinario/{id} - Busca um veterinário específico pelo ID
+        /// <summary>Busca um veterinário específico pelo ID.</summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<Veterinario>> GetById(decimal id)
         {
-            var veterinario = await _service.GetByIdAsync(id);
-            return veterinario == null ? NotFound() : Ok(veterinario);
+            try
+            {
+                var v = await _service.GetByIdAsync(id);
+                return v == null ? NotFound("Veterinário não encontrado.") : Ok(v);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
-        // POST: api/Veterinario - Cadastra um novo veterinário
+        /// <summary>Cadastra um novo veterinário.</summary>
         [HttpPost]
-        public async Task<ActionResult> Create(Veterinario veterinario)
+        public async Task<ActionResult> Create(Veterinario v)
         {
-            await _service.AddAsync(veterinario);
-            return CreatedAtAction(nameof(GetById), new { id = veterinario.IdVeterinario }, veterinario);
+            try
+            {
+                await _service.AddAsync(v);
+                return CreatedAtAction(nameof(GetById), new { id = v.IdVeterinario }, v);
+            }
+            catch (Exception ex) { return BadRequest($"Erro ao cadastrar: {ex.Message}"); }
         }
 
-        // PUT: api/Veterinario/{id} - Atualiza os dados ou status de um veterinário
+        /// <summary>Atualiza os dados de um veterinário.</summary>
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(decimal id, Veterinario veterinario)
+        public async Task<ActionResult> Update(decimal id, Veterinario v)
         {
-            if (id != veterinario.IdVeterinario) return BadRequest("ID do veterinário divergente.");
-
-            await _service.UpdateAsync(veterinario);
-            return NoContent();
+            if (id != v.IdVeterinario) return BadRequest("IDs divergentes.");
+            try
+            {
+                await _service.UpdateAsync(v);
+                return NoContent();
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
-        // DELETE: api/Veterinario/{id} - Remove um registro de veterinário
+        /// <summary>Remove um veterinário pelo ID.</summary>
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(decimal id)
         {
-            await _service.DeleteAsync(id);
-            return NoContent();
+            try { await _service.DeleteAsync(id); return NoContent(); }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
     }
 }
