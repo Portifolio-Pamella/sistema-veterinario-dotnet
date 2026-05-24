@@ -2,8 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using SistemaVeterinario.API.Data;
 using SistemaVeterinario.API.Models;
 using SistemaVeterinario.API.Repositories.Interfaces;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SistemaVeterinario.API.Repositories
 {
@@ -15,32 +13,26 @@ namespace SistemaVeterinario.API.Repositories
 
         public async Task<IEnumerable<Pet>> GetAllAsync()
         {
-            return await _context.Pets.Include(p => p.Tutor).ToListAsync();
+            return await _context.Pets.AsNoTracking().Include(p => p.Tutor).ToListAsync();
         }
 
         public async Task<Pet?> GetByIdAsync(decimal id)
         {
-            return await _context.Pets.Include(p => p.Tutor).FirstOrDefaultAsync(p => p.IdPet == id);
+            return await _context.Pets.AsNoTracking().Include(p => p.Tutor).FirstOrDefaultAsync(p => p.IdPet == id);
         }
 
         public async Task AddAsync(Pet pet)
         {
-            // Para evitar problemas de integridade, garantimos que o tutor não seja tratado como novo
-            pet.Tutor = null!;
+            // Isso evita que o EF tente inserir um Tutor que já existe no banco
+            pet.Tutor = null;
             await _context.Pets.AddAsync(pet);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(Pet pet)
         {
-            var existingPet = await _context.Pets.FindAsync(pet.IdPet);
-            if (existingPet != null)
-            {
-                _context.Entry(existingPet).CurrentValues.SetValues(pet);
-                existingPet.IdTutor = pet.IdTutor;
-                existingPet.Tutor = null!;
-                await _context.SaveChangesAsync();
-            }
+            _context.Pets.Update(pet);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(decimal id)

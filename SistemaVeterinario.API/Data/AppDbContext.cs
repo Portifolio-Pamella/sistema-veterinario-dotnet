@@ -13,34 +13,65 @@ namespace SistemaVeterinario.API.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            // Mapeamento Veterinário
             modelBuilder.Entity<Veterinario>(entity =>
             {
                 entity.ToTable("TB_VETERINARIO");
                 entity.HasKey(v => v.IdVeterinario);
-                entity.Property(v => v.IdVeterinario)
-                      .HasColumnName("ID_VETERINARIO")
-                      .ValueGeneratedOnAdd();
+                entity.Property(v => v.IdVeterinario).HasColumnName("ID_VETERINARIO").ValueGeneratedNever();
+                entity.Property(v => v.NomeVeterinario).HasColumnName("NOME_VETERINARIO").IsRequired();
+                entity.Property(v => v.CrmVeterinario).HasColumnName("CRM_VETERINARIO").IsRequired();
+                entity.Property(v => v.EspecialidadeVeterinario).HasColumnName("ESPECIALIDADE_VETERINARIO").IsRequired();
+                entity.Property(v => v.TelefoneVeterinario).HasColumnName("TELEFONE_VETERINARIO");
+                entity.Property(v => v.EmailVeterinario).HasColumnName("EMAIL_VETERINARIO");
+                entity.Property(v => v.StatusVeterinario).HasColumnName("STATUS_VETERINARIO");
+                entity.Property(v => v.DataCadastroVeterinario).HasColumnName("DATA_CADASTRO_VETERINARIO");
+                entity.HasIndex(v => v.CrmVeterinario).IsUnique();
+                entity.HasIndex(v => v.EmailVeterinario).IsUnique();
             });
 
+            // Mapeamento Tutor
             modelBuilder.Entity<Tutor>(entity =>
             {
                 entity.ToTable("TB_TUTOR");
                 entity.HasKey(t => t.IdTutor);
-                entity.Property(t => t.IdTutor)
-                      .HasColumnName("ID_TUTOR")
-                      .ValueGeneratedOnAdd();
-
-                entity.HasIndex(t => t.CpfTutor).IsUnique();
-                entity.HasIndex(t => t.EmailTutor).IsUnique();
+                entity.Property(t => t.IdTutor).HasColumnName("ID_TUTOR").ValueGeneratedNever();
+                entity.Property(t => t.NomeTutor).HasColumnName("NOME_TUTOR").IsRequired();
+                entity.Property(t => t.CpfTutor).HasColumnName("CPF_TUTOR").IsRequired();
+                entity.Property(t => t.TelefoneTutor).HasColumnName("TELEFONE_TUTOR");
+                entity.Property(t => t.EmailTutor).HasColumnName("EMAIL_TUTOR").IsRequired();
+                entity.Property(t => t.CepTutor).HasColumnName("CEP_TUTOR").IsRequired();
+                entity.Property(t => t.RuaTutor).HasColumnName("RUA_TUTOR").IsRequired();
+                entity.Property(t => t.NumeroTutor).HasColumnName("NUMERO_TUTOR").IsRequired();
+                entity.Property(t => t.ComplementoTutor).HasColumnName("COMPLEMENTO_TUTOR");
+                entity.Property(t => t.BairroTutor).HasColumnName("BAIRRO_TUTOR").IsRequired();
+                entity.Property(t => t.CidadeTutor).HasColumnName("CIDADE_TUTOR").IsRequired();
+                entity.Property(t => t.EstadoTutor).HasColumnName("ESTADO_TUTOR").IsRequired();
+                entity.Property(t => t.DataCadastroTutor).HasColumnName("DATA_CADASTRO_TUTOR").IsRequired();
             });
 
+            // Mapeamento Pet (Corrigido: agora fora da entidade Tutor)
             modelBuilder.Entity<Pet>(entity =>
             {
                 entity.ToTable("TB_PET");
                 entity.HasKey(p => p.IdPet);
-                entity.Property(p => p.IdPet)
-                      .HasColumnName("ID_PET")
-                      .ValueGeneratedOnAdd();
+                entity.Property(p => p.IdPet).HasColumnName("ID_PET").ValueGeneratedNever();
+                entity.Property(p => p.IdTutor).HasColumnName("ID_TUTOR").IsRequired();
+                entity.Property(p => p.NomePet).HasColumnName("NOME_PET").IsRequired();
+                entity.Property(p => p.EspeciePet).HasColumnName("ESPECIE_PET").IsRequired();
+                entity.Property(p => p.RacaPet).HasColumnName("RACA_PET").IsRequired();
+                entity.Property(p => p.SexoPet).HasColumnName("SEXO_PET").IsRequired();
+                entity.Property(p => p.DataNascimentoPet).HasColumnName("DATA_NASCIMENTO_PET").IsRequired();
+                entity.Property(p => p.PesoPet).HasColumnName("PESO_PET").IsRequired();
+                entity.Property(p => p.CorPet).HasColumnName("COR_PET").IsRequired();
+                entity.Property(p => p.DataCadastroPet).HasColumnName("DATA_CADASTRO_PET").IsRequired();
+
+                entity.HasOne(p => p.Tutor)
+                      .WithMany()
+                      .HasForeignKey(p => p.IdTutor)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

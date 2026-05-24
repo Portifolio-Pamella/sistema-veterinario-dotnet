@@ -11,38 +11,32 @@ namespace SistemaVeterinario.API.Repositories
     {
         private readonly AppDbContext _context;
 
-        public VeterinarioRepository(AppDbContext context)
-        {
-            _context = context;
-        }
+        public VeterinarioRepository(AppDbContext context) => _context = context;
 
         public async Task<IEnumerable<Veterinario>> GetAllAsync()
         {
-            return await _context.Veterinarios.ToListAsync();
+            // Usamos AsNoTracking para evitar que o EF tente validar nulos em relacionamentos
+            return await _context.Veterinarios.AsNoTracking().ToListAsync();
         }
 
         public async Task<Veterinario?> GetByIdAsync(decimal id)
         {
-            return await _context.Veterinarios.FirstOrDefaultAsync(v => v.IdVeterinario == id);
+            return await _context.Veterinarios.AsNoTracking().FirstOrDefaultAsync(v => v.IdVeterinario == id);
         }
 
         public async Task AddAsync(Veterinario veterinario)
         {
-            veterinario.IdVeterinario = 0;
-
+            // Adiciona a entidade e deixa a Trigger do Oracle gerar o ID
             await _context.Veterinarios.AddAsync(veterinario);
             await _context.SaveChangesAsync();
         }
+
         public async Task UpdateAsync(Veterinario veterinario)
         {
-            var existing = await _context.Veterinarios.FindAsync(veterinario.IdVeterinario);
-
-            if (existing != null)
-            {
-                _context.Entry(existing).CurrentValues.SetValues(veterinario);
-
-                await _context.SaveChangesAsync();
-            }
+            // O Update no EF Core deve ser direto. 
+            // Se o ID for gerado por Trigger, não tente alterar o ID.
+            _context.Veterinarios.Update(veterinario);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(decimal id)
