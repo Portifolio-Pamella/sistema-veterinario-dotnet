@@ -121,7 +121,7 @@ Certifique-se de usar um idTutor existente.
 
 JSON
 {
-  "idTutor": 1,
+  "idTutor": 0,
   "nomePet": "Rex",
   "especiePet": "Cachorro",
   "racaPet": "Golden Retriever",
