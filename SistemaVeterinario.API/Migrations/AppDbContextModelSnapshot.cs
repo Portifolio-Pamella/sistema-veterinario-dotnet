@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oracle.EntityFrameworkCore.Metadata;
-using SistemaVeterinario.API.Data;
+using SistemaVeterinario.Infrastructure.Data;
 
 #nullable disable
 
