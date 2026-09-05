@@ -1,36 +1,32 @@
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using SistemaVeterinario.Infrastructure.Extensions;
 using HealthChecks.UI.Client;
-using Microsoft.EntityFrameworkCore;
-
-// Namespaces das camadas da sua Clean Architecture
-using SistemaVeterinario.Infrastructure;
-using SistemaVeterinario.Application.Service;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Adicionar os controllers da API
 builder.Services.AddControllers();
 
-// 2. Configurar o Swagger/OpenAPI para documentação
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// 1. Injeta as dependências da infraestrutura (inclui o banco e o readiness check)
+builder.Services.AddInfrastructure(builder.Configuration);
+
+// 2. Adiciona o Liveness check diretamente na API
+builder.Services.AddHealthChecks()
+    .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy(), tags: new[] { "live" });
 
 var app = builder.Build();
 
-// 3. Configurar o pipeline de requisições HTTP
-if (app.Environment.IsDevelopment())
+// 3. Mapeia o Endpoint de Liveness (Vivacidade)
+app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Sistema Veterinario API v1");
-        c.RoutePrefix = string.Empty; // Faz o Swagger abrir diretamente na raiz (http://localhost:5262/)
-    });
-}
+    Predicate = check => check.Tags.Contains("live")
+});
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
+// 4. Mapeia o Endpoint de Prontidão (Readiness) com retorno em JSON
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready"),
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 app.MapControllers();
 
