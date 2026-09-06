@@ -11,11 +11,20 @@ namespace SistemaVeterinario.Infrastructure.Extensions
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            var connectionString = configuration.GetConnectionString("OracleConnection");
+
             services.AddDbContext<AppDbContext>(options =>
-                options.UseOracle(configuration.GetConnectionString("OracleConnection")));
-            services.AddScoped<ITutorRepository, TutorRepository>();
+                options.UseOracle(connectionString));
+
+            // Adiciona o Health Check apontando para o DbContext do Oracle com a tag "ready"
+            services.AddHealthChecks()
+                .AddDbContextCheck<AppDbContext>(
+                    name: "database-check",
+                    tags: new[] { "ready" });
+
             services.AddScoped<IVeterinarioRepository, VeterinarioRepository>();
             services.AddScoped<IPetRepository, PetRepository>();
+            services.AddScoped<ITutorRepository, TutorRepository>();
 
             return services;
         }
