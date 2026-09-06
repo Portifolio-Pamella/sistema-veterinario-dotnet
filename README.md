@@ -1,6 +1,9 @@
+```markdown
 # Sistema Veterinário API
 
-Este projeto é uma API RESTful desenvolvida em **ASP.NET Core** para o gerenciamento de uma clínica veterinária. O sistema permite o controle de **Tutores**, seus **Pets** e os **Veterinários** responsáveis, garantindo a integridade dos dados através de uma arquitetura em camadas e integração com banco de dados **Oracle**.
+Este projeto é uma API RESTful desenvolvida em **ASP.NET Core** para o gerenciamento de uma clínica veterinária. O sistema permite o controle de **Tutores**, seus **Pets** e os **Veterinários** responsáveis, garantindo a integridade dos dados através de uma arquitetura em camadas e integração com banco de dados **Oracle**. 
+
+A aplicação conta também com recursos avançados de observabilidade corporativa, incluindo **Health Checks**, **Logging Estruturado com Serilog** e **Tracing/Métricas com OpenTelemetry**, além de uma suíte completa de **testes unitários e de integração**.
 
 ## Integrantes
 * **Lucas Matsubara Reis** | RM565020
@@ -12,6 +15,9 @@ Este projeto é uma API RESTful desenvolvida em **ASP.NET Core** para o gerencia
 * **Entity Framework Core** (ORM)
 * **Oracle Database**
 * **Swagger (OpenAPI)** para documentação
+* **OpenTelemetry** para rastreamento distribuído e métricas de desempenho
+* **Serilog** para logging estruturado
+* **xUnit & Moq** para testes automatizados
 
 ---
 
@@ -25,72 +31,95 @@ Para executar o projeto, certifique-se de ter instalado:
 1. **Clone o repositório:**
    ```bash
    git clone git@github.com:Portifolio-Pamella/sistema-veterinario-dotnet.git
-Configuração do Banco:
 
-Crie um usuário no seu Oracle.
+```
 
-No arquivo appsettings.json, atualize a OracleConnection com suas credenciais:
-
-JSON
+2. **Configuração do Banco:**
+Crie um usuário no seu Oracle. No arquivo `appsettings.json`, atualize a `OracleConnection` com suas credenciais:
+```json
 "ConnectionStrings": {
   "OracleConnection": "User Id=USUARIO;Password=SENHA;Data Source=localhost:1521/xe;"
 }
 
-Aplicar Migrations:
+```
+
+
+3. **Aplicar Migrations:**
 No terminal, na pasta do projeto, execute:
-
-Bash
+```bash
 dotnet ef database update
+
+```
+
+
 Isso criará as tabelas e executará as Triggers e Sequences necessárias.
+4. **Executar:**
+```bash
+dotnet run --project .\SistemaVeterinario.API\SistemaVeterinario.API.csproj
 
-Executar:
+```
 
-Bash
-dotnet run
-Acesse: http://localhost:5262/swagger
 
-Arquitetura do Projeto
+Acesse: `http://localhost:5262/swagger`
+
+## Como Executar os Testes
+
+O projeto possui uma suíte organizada de testes unitários (com xUnit e Moq) e de integração (utilizando `WebApplicationFactory`). Para rodar todos os testes da solução, execute o comando na raiz do repositório:
+
+```bash
+dotnet test
+
+```
+
+## Monitoramento e Health Checks
+
+A API dispõe de endpoints dedicados para verificação de saúde e disponibilidade da aplicação e de sua conectividade com o banco de dados:
+
+* **Endpoints de Health Check**: Utilize os caminhos configurados na API (`/health/live` e `/health/ready`) para checar se o serviço e o Oracle estão operacionais.
+* **OpenTelemetry & Logging**: O sistema coleta métricas de desempenho (tempo de resposta, taxa de erros, rastreamento de requisições entre camadas) e logs estruturados que são exibidos diretamente no console ou integrados a coletores compatíveis.
+
+---
+
+## Arquitetura do Projeto
+
 O sistema foi construído seguindo uma Arquitetura em Camadas (Data, Models, Repositories, Services e Controllers):
 
-Persistência: Utiliza EF Core com mapeamento fluido. As chaves primárias são gerenciadas pelo banco de dados através de Triggers e Sequences, garantindo autonomia do SGBD.
+* **Persistência**: Utiliza EF Core com mapeamento fluido. As chaves primárias são geridas pelo banco de dados através de Triggers e Sequences, garantindo autonomia do SGBD.
+* **API**: Desenvolvida com o padrão REST, com tratamento global de erros (try-catch) para assegurar retornos HTTP semânticos (200, 201, 204, 400, 404).
 
-API: Desenvolvida com o padrão REST, com tratamento global de erros (try-catch) para assegurar retornos HTTP semânticos (200, 201, 204, 400, 404).
+## Documentação das Rotas
 
-Documentação das Rotas
-Veterinário (/api/Veterinario)
-GET: Lista todos os veterinários.
+### Veterinário (`/api/Veterinario`)
 
-GET /{id}: Busca um veterinário específico.
+* **GET**: Lista todos os veterinários.
+* **POST**: Cadastra um novo veterinário.
+* **GET `/{id}**`: Busca um veterinário específico.
+* **PUT `/{id}**`: Atualiza um registro.
+* **DELETE `/{id}**`: Remove um registro.
 
-GET /especialidade/{especialidade}: Filtra veterinários por especialidade.
+### Tutor (`/api/Tutor`)
 
-POST: Cadastra um novo veterinário.
+* **GET**: Lista todos os tutores.
+* **POST**: Cadastra um novo tutor.
+* **GET `/{id}**`: Busca um tutor por ID.
+* **PUT `/{id}**`: Atualiza um registro de tutor.
+* **DELETE `/{id}**`: Remove um registro de tutor.
 
-PUT /{id}: Atualiza um registro.
+### Pet (`/api/Pet`)
 
-DELETE /{id}: Remove um registro.
+* **GET**: Lista todos os pets.
+* **POST**: Cadastra um novo pet vinculado a um tutor.
+* **GET `/{id}**`: Busca um pet específico por ID.
+* **PUT `/{id}**`: Atualiza os dados do pet.
+* **DELETE `/{id}**`: Remove um registro de pet.
 
-Tutor (/api/Tutor)
-GET: Lista todos os tutores.
+---
 
-GET /{id}: Busca um tutor por ID.
+## Exemplos de JSON para Teste
 
-GET /cidade/{cidade}: Filtra tutores por cidade.
+### Cadastro de Veterinário
 
-POST: Cadastra um novo tutor.
-
-Pet (/api/Pet)
-GET: Lista todos os pets.
-
-GET /especie/{especie}: Filtra pets por espécie.
-
-POST: Cadastra um pet vinculado a um idTutor.
-
-PUT /{id}: Atualiza os dados do pet.
-
-Exemplos de JSON para Teste
-Cadastro de Veterinário
-JSON
+```json
 {
   "nomeVeterinario": "Dra. Maria Teste",
   "crmVeterinario": "CRM-12345",
@@ -100,8 +129,12 @@ JSON
   "statusVeterinario": "Ativo",
   "dataCadastroVeterinario": "2026-05-23T21:00:00"
 }
-Cadastro de Tutor
-JSON
+
+```
+
+### Cadastro de Tutor
+
+```json
 {
   "nomeTutor": "João Silva",
   "cpfTutor": "123.456.789-00",
@@ -116,18 +149,28 @@ JSON
   "estadoTutor": "SP",
   "dataCadastroTutor": "2026-05-24T01:03:42.967Z"
 }
-Cadastro de Pet
-Certifique-se de usar um idTutor existente.
 
-JSON
+```
+
+### Cadastro de Pet
+
+*(Certifique-se de usar um `idTutor` existente)*
+
+```json
 {
-  "idTutor": 0,
+  "idTutor": 1,
   "nomePet": "Rex",
   "especiePet": "Cachorro",
   "racaPet": "Golden Retriever",
   "sexoPet": "Macho",
-  "dataNascimentoPet": "2024-01-15T00:00:00Z",s
+  "dataNascimentoPet": "2024-01-15T00:00:00Z",
   "pesoPet": 25.5,
   "corPet": "Dourado",
   "dataCadastroPet": "2026-05-24T01:03:42.967Z"
 }
+
+```
+
+```
+
+```
