@@ -1,32 +1,37 @@
-using Microsoft.Extensions.Configuration;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Trace;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using SistemaVeterinario.Infrastructure.Data;
 using SistemaVeterinario.Infrastructure.Repositories;
-using SistemaVeterinario.Infrastructure.Repositories.Interfaces;
 
-namespace SistemaVeterinario.Infrastructure.Extensions
+namespace SistemaVeterinario.Infrastructure.Extensions;
+
+public static class DependencyInjection
 {
-    public static class DependencyInjection
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-        {
-            var connectionString = configuration.GetConnectionString("OracleConnection");
+        // Registro do DbContext do Entity Framework com Oracle usando o nome correto da connection string
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseOracle(configuration.GetConnectionString("OracleConnection")));
 
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseOracle(connectionString));
+        // Registros dos repositórios
+        services.AddScoped<SistemaVeterinario.Infrastructure.Repositories.Interfaces.IPetRepository, PetRepository>();
+        services.AddScoped<SistemaVeterinario.Infrastructure.Repositories.Interfaces.ITutorRepository, TutorRepository>();
+        services.AddScoped<SistemaVeterinario.Infrastructure.Repositories.Interfaces.IVeterinarioRepository, VeterinarioRepository>();
 
-            // Adiciona o Health Check apontando para o DbContext do Oracle com a tag "ready"
-            services.AddHealthChecks()
-                .AddDbContextCheck<AppDbContext>(
-                    name: "database-check",
-                    tags: new[] { "ready" });
+        // Configuração do OpenTelemetry
+        services.AddOpenTelemetry()
+            .WithTracing(tracing => tracing
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddConsoleExporter())
+            .WithMetrics(metrics => metrics
+                .AddAspNetCoreInstrumentation()
+                .AddRuntimeInstrumentation()
+                .AddConsoleExporter());
 
-            services.AddScoped<IVeterinarioRepository, VeterinarioRepository>();
-            services.AddScoped<IPetRepository, PetRepository>();
-            services.AddScoped<ITutorRepository, TutorRepository>();
-
-            return services;
-        }
+        return services;
     }
 }

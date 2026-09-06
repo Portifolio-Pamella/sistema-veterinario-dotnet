@@ -20,7 +20,14 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("TB_VETERINARIO");
             entity.HasKey(v => v.IdVeterinario);
-            entity.Property(v => v.IdVeterinario).HasColumnName("ID_VETERINARIO").HasPrecision(10, 0).ValueGeneratedNever();
+
+            // Alterado para ValueGeneratedNever para evitar envio de nulo, 
+            // permitindo que a sequence do banco atue ou o insert ocorra corretamente
+            entity.Property(v => v.IdVeterinario)
+                  .HasColumnName("ID_VETERINARIO")
+                  .HasPrecision(10, 0)
+                  .ValueGeneratedNever();
+
             entity.Property(v => v.NomeVeterinario).HasColumnName("NOME_VETERINARIO").IsRequired();
             entity.Property(v => v.CrmVeterinario).HasColumnName("CRM_VETERINARIO").IsRequired();
             entity.Property(v => v.EspecialidadeVeterinario).HasColumnName("ESPECIALIDADE_VETERINARIO").IsRequired();
@@ -37,7 +44,7 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("TB_TUTOR");
             entity.HasKey(t => t.IdTutor);
-            entity.Property(t => t.IdTutor).HasColumnName("ID_TUTOR").HasPrecision(10, 0).ValueGeneratedNever();
+            entity.Property(t => t.IdTutor).HasColumnName("ID_TUTOR").HasPrecision(10, 0).ValueGeneratedOnAdd();
             entity.Property(t => t.NomeTutor).HasColumnName("NOME_TUTOR").IsRequired();
             entity.Property(t => t.CpfTutor).HasColumnName("CPF_TUTOR").IsRequired();
             entity.Property(t => t.TelefoneTutor).HasColumnName("TELEFONE_TUTOR");
@@ -57,7 +64,7 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("TB_PET");
             entity.HasKey(p => p.IdPet);
-            entity.Property(p => p.IdPet).HasColumnName("ID_PET").HasPrecision(10, 0).ValueGeneratedNever();
+            entity.Property(p => p.IdPet).HasColumnName("ID_PET").HasPrecision(10, 0).ValueGeneratedOnAdd();
             entity.Property(p => p.IdTutor).HasColumnName("ID_TUTOR").HasPrecision(10, 0).IsRequired();
             entity.Property(p => p.NomePet).HasColumnName("NOME_PET").IsRequired();
             entity.Property(p => p.EspeciePet).HasColumnName("ESPECIE_PET").IsRequired();
