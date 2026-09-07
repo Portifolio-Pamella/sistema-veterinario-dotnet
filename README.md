@@ -6,6 +6,7 @@ Este projeto é uma API RESTful desenvolvida em **ASP.NET Core** para o gerencia
 A aplicação conta também com recursos avançados de observabilidade corporativa, incluindo **Health Checks**, **Logging Estruturado com Serilog** e **Tracing/Métricas com OpenTelemetry**, além de uma suíte completa de **testes unitários e de integração**.
 
 ## Integrantes
+* **Felipe Ribeiro Salles de Camargo | RM565224
 * **Lucas Matsubara Reis** | RM565020
 * **João Pedro Camilo** | RM562005
 * **Pamella Christiny** | RM565206
