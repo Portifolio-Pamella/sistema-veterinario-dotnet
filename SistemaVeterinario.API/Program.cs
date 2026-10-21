@@ -5,7 +5,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SistemaVeterinario.API.Services;
 using SistemaVeterinario.Application.Extensions;
+using SistemaVeterinario.Application.Service; // <-- Adicionado para reconhecer o HistoricoAtendimentoService
 using SistemaVeterinario.Infrastructure.Extensions;
+using SistemaVeterinario.Infrastructure.NoSql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,18 @@ var jwtAudience = builder.Configuration["Jwt:Audience"];
 // Adiciona as camadas
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// ==========================================
+// REGISTRO DO MONGODB (NO-SQL)
+// ==========================================
+builder.Services.Configure<MongoDBSettings>(
+    builder.Configuration.GetSection("GameStoreDatabase"));
+
+builder.Services.AddSingleton<MongoDbContext>();
+
+// Registro do Serviço NoSQL de Histórico de Atendimento
+builder.Services.AddSingleton<HistoricoAtendimentoService>();
+// ==========================================
 
 // Adiciona o Liveness check diretamente na API
 builder.Services.AddHealthChecks()
