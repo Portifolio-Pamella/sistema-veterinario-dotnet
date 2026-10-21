@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SistemaVeterinario.Domain.Models;
 using SistemaVeterinario.Application.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
@@ -9,6 +10,7 @@ using System.Linq;
 
 namespace SistemaVeterinario.API.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class VeterinarioController : ControllerBase
